@@ -7,7 +7,8 @@
         x =  Math.floor(Math.random() * 9)+1
         y =  Math.floor(Math.random() * 9)+1
         recognition.stop();
-        let utterance = new SpeechSynthesisUtterance(`${x} times ${y} ?`);
+        let utterance = new SpeechSynthesisUtterance(`${x} mal ${y} ?`);
+        utterance.lang = 'de-DE'
         speechSynthesis.speak(utterance); 
         utterance.onend = function(){
             //console.log('end');
@@ -43,25 +44,33 @@ recognition.onresult = function(event) {
 for (let i = event.resultIndex; i < event.results.length; ++i) {
   // If the result item is Final, add it to Final Transcript, Else add it to Interim transcript
   final_transcript=''
+  interim_transcript=''
   if (event.results[i].isFinal) {
     final_transcript = event.results[i][0].transcript;
   } else {
     interim_transcript = event.results[i][0].transcript;
   }
-
-  if (!final_transcript) return 
-  if (final_transcript.split(' ').includes(String(x*y))) {
-    recognition.stop()
-    let utterance = new SpeechSynthesisUtterance(`Correct`);
-    utterance.onend = function(){
+ 
+  if (
+    (final_transcript && final_transcript.split(' ').includes(String(x*y)))
+      || 
+    (interim_transcript && interim_transcript.split(' ').includes(String(x*y)))
+    ) {
         final_transcript = ''
+        interim_transcript=''    
+        recognition.stop()
+        let utterance = new SpeechSynthesisUtterance(`Correct`);
+        utterance.onend = function(){
+
         generatexy()
     }    
     speechSynthesis.speak(utterance); 
-  } else {
+  } else if (false) { //(final_transcript){
     recognition.stop()
     final_transcript = ''
+    interim_transcript=''
     let utterance = new SpeechSynthesisUtterance(`Wrong!`);
+    utterance.pitch = 1.5
     utterance.onend = function(){
         //console.log('end');
         recognition.start();
