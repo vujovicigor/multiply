@@ -7,12 +7,14 @@
         x =  Math.floor(Math.random() * 9)+1
         y =  Math.floor(Math.random() * 9)+1
         recognition.stop();
+        recognitionStop = true
         let utterance = new SpeechSynthesisUtterance(`${x} mal ${y} ?`);
         utterance.lang = 'de-DE'
         speechSynthesis.speak(utterance); 
         utterance.onend = function(){
             //console.log('end');
             recognition.start();
+            recognitionStop = false
         }          
 
     }
@@ -31,6 +33,7 @@ recognition.maxAlternatives = 1;
 //var bg = document.querySelector('html');
 
 let start = function() {
+  recognitionStop = false
   recognition.start();
   state = 'go'
   console.log('Ready to receive command.');
@@ -39,7 +42,9 @@ let start = function() {
 
 let final_transcript = ''
 let interim_transcript = ''
+let recognitionStop = false
 recognition.onresult = function(event) {
+    if (recognitionStop) return
     // Loop through the results from the speech recognition object.
 for (let i = event.resultIndex; i < event.results.length; ++i) {
   // If the result item is Final, add it to Final Transcript, Else add it to Interim transcript
@@ -59,6 +64,7 @@ for (let i = event.resultIndex; i < event.results.length; ++i) {
         final_transcript = ''
         interim_transcript=''    
         recognition.stop()
+        recognitionStop = true
         let utterance = new SpeechSynthesisUtterance(`Correct`);
         utterance.onend = function(){
 
